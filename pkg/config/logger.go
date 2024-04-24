@@ -6,23 +6,15 @@ import (
 	"time"
 )
 
-func LoggerConfig() gin.HandlerFunc {
-	location, _ := time.LoadLocation("Asia/Seoul")
-
-	return gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-		timeStamp := param.TimeStamp.In(location).Format(time.RFC3339)
-		errorMessage := ""
-		if param.ErrorMessage != "" {
-			errorMessage = fmt.Sprintf(" Error: %s", param.ErrorMessage)
-		}
-		return fmt.Sprintf("%s - [%s] \"%s %s\" %d %s %d%s\n",
-			param.ClientIP,
-			timeStamp,
-			param.Method,
-			param.Path,
-			param.StatusCode,
-			param.Latency,
-			errorMessage,
-		)
-	})
+func LoggerFormatter(param gin.LogFormatterParams) string {
+	return fmt.Sprintf("[kanary] - %s - [%s] \"%s %s %s %d %s\" %s\n",
+		param.ClientIP,
+		param.TimeStamp.Format(time.RFC1123),
+		param.Method,
+		param.Path,
+		param.Request.Proto,
+		param.StatusCode,
+		param.Latency,
+		param.ErrorMessage,
+	)
 }
