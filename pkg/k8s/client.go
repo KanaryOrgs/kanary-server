@@ -8,6 +8,7 @@ import (
 	"k8s.io/metrics/pkg/client/clientset/versioned"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 type K8sHandler struct {
@@ -23,29 +24,35 @@ func NewK8sHandler() *K8sHandler {
 	return kh
 }
 
-// getClientConfig tries to get in-cluster config and falls back to out-of-cluster config if it fails.
+// getClientConfig tries to get in-cluster kubeconfig and falls back to out-of-cluster kubeconfig if it fails.
 func getClientConfig() (*rest.Config, error) {
-	config, err := rest.InClusterConfig()
+	kubeconfig, err := rest.InClusterConfig()
 	if err == nil {
-		return config, nil
+		return kubeconfig, nil
 	}
 
-	k8sAPIAddr := os.Getenv("K8S_API_LISTEN_ADDR")
-	k8sAPIPort := os.Getenv("K8S_API_LISTEN_PORT")
-	k8sConfig := os.Getenv("K8S_API_CONFIG")
-
-	if k8sAPIAddr == "" || k8sAPIPort == "" || k8sConfig == "" {
-		return nil, fmt.Errorf("incomplete k8s API environment settings: Address=%s, Port=%s, Config=%s", k8sAPIAddr, k8sAPIPort, k8sConfig)
+	configFile := os.Getenv("KUBECONFIG")
+	if configFile == "" {
+		home := os.Getenv("HOME")
+		configFile = filepath.Join(home, ".kube", "config")
+		if _, err := os.Stat(filepath.Clean(configFile)); err != nil {
+			return nil, fmt.Errorf("failed to access kubeconfig file %s: %v", configFile, err)
+		}
 	}
 
-	return clientcmd.BuildConfigFromFlags("https://"+k8sAPIAddr+":"+k8sAPIPort, k8sConfig)
+	kubeconfig, err = clientcmd.BuildConfigFromFlags("", configFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build config from file %s: %v", configFile, err)
+
+	}
+	return kubeconfig, nil
 }
 
-// initK8sClient initializes a Kubernetes client using in-cluster config, or falls back to out-of-cluster config.
+// initK8sClient initializes a Kubernetes client using in-cluster kubeconfig, or falls back to out-of-cluster kubeconfig.
 func initK8sClient() *kubernetes.Clientset {
 	config, err := getClientConfig()
 	if err != nil {
-		log.Printf("Failed to get K8s client config: %v", err)
+		log.Printf("Failed to get K8s client kubeconfig: %v", err)
 		panic(err)
 	}
 
@@ -58,11 +65,11 @@ func initK8sClient() *kubernetes.Clientset {
 	return client
 }
 
-// initMetricK8sClient initializes a Kubernetes metrics client using in-cluster or out-of-cluster config.
+// initMetricK8sClient initializes a Kubernetes metrics client using in-cluster or out-of-cluster kubeconfig.
 func initMetricK8sClient() *versioned.Clientset {
 	config, err := getClientConfig()
 	if err != nil {
-		log.Printf("Failed to get K8s metrics client config: %v", err)
+		log.Printf("Failed to get K8s metrics client kubeconfig: %v", err)
 		panic(err)
 	}
 
