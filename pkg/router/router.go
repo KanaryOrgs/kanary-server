@@ -15,7 +15,7 @@ func NewRouter(kh *k8s.K8sHandler) *gin.Engine {
 	v1 := router.Group("/v1")
 	{
 		setUpPodRoutes(v1, kh)
-		// setUpNodeRoutes(v1)
+		setUpNodeRoutes(v1, kh)
 	}
 
 	return router
@@ -27,4 +27,12 @@ func setUpPodRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 	podController := controllers.NewPodController(kh)
 
 	api.GET("/pods", podController.GetPods)
+}
+
+// setUpNodeRoutes sets up routing for node related endpoints.
+// /v1/pods/
+func setUpNodeRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
+	nodeController := controllers.NewNodeController(kh)
+
+	api.GET("/nodes", nodeController.GetNodes)
 }
