@@ -8,8 +8,10 @@ type PodList struct {
 	Name      string            `json:"name"`
 	Namespace string            `json:"namespace"`
 	Images    []string          `json:"images"`
+	IP        string            `json:"ip"`
 	Status    string            `json:"status"`
 	Labels    map[string]string `json:"labels"`
+	Restarts  int32             `json:"restarts"`
 }
 
 // PodDetails represents detailed information about a single pod.
@@ -43,9 +45,11 @@ func SerializePodList(podList *v1.PodList) []PodList {
 		serializedPodList[i] = PodList{
 			Name:      pod.Name,
 			Namespace: pod.Namespace,
+			IP:        pod.Status.PodIP,
 			Images:    images,
 			Status:    string(pod.Status.Phase),
 			Labels:    pod.Labels,
+			Restarts:  getRestartCount(pod),
 		}
 	}
 	return serializedPodList
@@ -76,4 +80,12 @@ func SerializePodDetails(podList *v1.PodList) []PodDetails {
 		}
 	}
 	return serializedPods
+}
+
+func getRestartCount(pod v1.Pod) int32 {
+	var restartCount int32 = 0
+	for _, containerStatus := range pod.Status.ContainerStatuses {
+		restartCount += containerStatus.RestartCount
+	}
+	return restartCount
 }
