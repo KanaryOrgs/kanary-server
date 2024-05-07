@@ -6,13 +6,15 @@ import (
 )
 
 type NodeList struct {
-	Name       string
-	Status     string
-	IP         string
-	CPU        string
-	Memory     string
-	Conditions []string
-	Labels     map[string]string
+	Name           string   `json:"name"`
+	Status         string   `json:"status"`
+	IP             string   `json:"ip"`
+	CpuCore        int64    `json:"cpu_core"`
+	RamCapacity    int64    `json:"ram_capacity"`
+	OS             string   `json:"os"`
+	KubeletVersion string   `json:"kubelet_version"`
+	Conditions     []string `json:"conditions"`
+	//	Labels         map[string]string
 }
 
 func SerializeNodeList(nodeList *v1.NodeList) []NodeList {
@@ -37,13 +39,15 @@ func SerializeNodeList(nodeList *v1.NodeList) []NodeList {
 		}
 
 		serializedNodeList[i] = NodeList{
-			Name:       node.Name,
-			Status:     status,
-			IP:         ip,
-			CPU:        cpu.String(),
-			Memory:     memory.String(),
-			Conditions: getNodeConditionString(node.Status.Conditions),
-			Labels:     node.Labels,
+			Name:           node.Name,
+			Status:         status,
+			IP:             ip,
+			CpuCore:        cpu.Value(),
+			RamCapacity:    memory.Value() / 1024 / 1024 / 1024,
+			OS:             node.Status.NodeInfo.OSImage,
+			KubeletVersion: node.Status.NodeInfo.KubeletVersion,
+			Conditions:     getNodeConditionString(node.Status.Conditions),
+			// Labels:         node.Labels,
 		}
 	}
 	return serializedNodeList
