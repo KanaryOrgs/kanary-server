@@ -2,6 +2,7 @@ package serializer
 
 import (
 	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type PodList struct {
@@ -16,12 +17,18 @@ type PodList struct {
 
 // PodDetails represents detailed information about a single pod.
 type PodDetails struct {
-	Name         string            `json:"name"`
-	Namespace    string            `json:"namespace"`
-	Containers   []Container       `json:"containers"`
-	RestartCount int32             `json:"restartCount"`
-	Status       string            `json:"status"`
-	Labels       map[string]string `json:"labels"`
+	Name      string            `json:"name"`
+	Namespace string            `json:"namespace"`
+	IP        string            `json:"ip"`
+	Images    []string          `json:"images"`
+	Status    string            `json:"status"`
+	CPUUsage  int64             `json:"cpu_usage"`
+	MemUsage  int64             `json:"mem_usage"`
+	Labels    map[string]string `json:"labels"`
+	Restarts  int32             `json:"restarts"`
+	NodeName  string            `json:"node_name"`
+	StartTime *metav1.Time      `json:"start_time"`
+	Volumes   []string          `json:"volumes"`
 }
 
 // Container represents information about a single container within a pod.
@@ -56,30 +63,34 @@ func SerializePodList(podList *v1.PodList) []PodList {
 }
 
 // SerializePodDetails serializes a PodList to a slice of PodDetails structures.
-func SerializePodDetails(podList *v1.PodList) []PodDetails {
-	if podList == nil {
-		return nil
+func SerializePodDetails(pod *v1.Pod, cpuUsage, memUsage int64) PodDetails {
+	images := make([]string, len(pod.Spec.Containers))
+	volumes := make([]string, len(pod.Spec.Volumes))
+
+	for j, container := range pod.Spec.Containers {
+		images[j] = container.Image
 	}
 
-	serializedPods := make([]PodDetails, len(podList.Items))
-	for i, pod := range podList.Items {
-		containers := make([]Container, len(pod.Spec.Containers))
-		for j, container := range pod.Spec.Containers {
-			containers[j] = Container{
-				Name:  container.Name,
-				Image: container.Image,
-			}
-		}
-		serializedPods[i] = PodDetails{
-			Name:         pod.Name,
-			Namespace:    pod.Namespace,
-			Containers:   containers,
-			RestartCount: pod.Status.ContainerStatuses[0].RestartCount,
-			Status:       string(pod.Status.Phase),
-			Labels:       pod.Labels,
-		}
+	for i, volume := range pod.Spec.Volumes {
+		volumes[i] = volume.Name
 	}
-	return serializedPods
+
+	serializePod := PodDetails{
+		Name:      pod.Name,
+		Namespace: pod.Namespace,
+		IP:        pod.Status.PodIP,
+		Images:    images,
+		Status:    string(pod.Status.Phase),
+		CPUUsage:  cpuUsage,
+		MemUsage:  memUsage,
+		Labels:    pod.Labels,
+		Restarts:  getRestartCount(*pod),
+		NodeName:  pod.Spec.NodeName,
+		StartTime: pod.Status.StartTime,
+		Volumes:   volumes,
+	}
+
+	return serializePod
 }
 
 func getRestartCount(pod v1.Pod) int32 {
