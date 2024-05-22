@@ -28,8 +28,8 @@ func (pc *PodController) GetPodList(c *gin.Context) {
 }
 
 func (pc *PodController) GetPod(c *gin.Context) {
-	podName := c.Param("podName")
-	namespace := c.Query("namespace")
+	podName := c.Param("name")
+	namespace := c.Param("namespace")
 
 	pod, err := pc.kh.GetPod(podName, namespace)
 	if err != nil {
@@ -44,4 +44,17 @@ func (pc *PodController) GetPod(c *gin.Context) {
 
 	serializePod := serializer.SerializePodDetails(pod, cpuUsage, memUsage)
 	c.JSON(http.StatusOK, serializePod)
+}
+
+func (pc *PodController) GetLogsOfPod(c *gin.Context) {
+	podName := c.Param("name")
+	namespace := c.Param("namespace")
+
+	podLogs, err := pc.kh.GetLogsOfPod(namespace, podName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to get pod: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, podLogs)
 }

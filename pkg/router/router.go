@@ -27,7 +27,8 @@ func setUpPodRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 	podController := controllers.NewPodController(kh)
 
 	api.GET("/pods", podController.GetPodList)
-	api.GET("/pods/:podName", podController.GetPod)
+	api.GET("/pods/:namespace/:name", podController.GetPod)
+	api.GET("/pods/logs/:namespace/:name", podController.GetLogsOfPod)
 
 }
 
