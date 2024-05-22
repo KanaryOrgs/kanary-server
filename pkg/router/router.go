@@ -37,5 +37,7 @@ func setUpPodRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 func setUpNodeRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 	nodeController := controllers.NewNodeController(kh)
 
-	api.GET("/nodes", nodeController.GetNodes)
+	api.GET("/nodes", nodeController.GetNodeList)
+	api.GET("/nodes/:name", nodeController.GetNode)
+
 }
