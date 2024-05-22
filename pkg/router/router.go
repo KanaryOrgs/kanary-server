@@ -33,11 +33,11 @@ func setUpPodRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 }
 
 // setUpNodeRoutes sets up routing for node related endpoints.
-// /v1/pods/
 func setUpNodeRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 	nodeController := controllers.NewNodeController(kh)
 
 	api.GET("/nodes", nodeController.GetNodeList)
 	api.GET("/nodes/:name", nodeController.GetNode)
+	api.GET("/nodes/count", nodeController.GetNodeCount)
 
 }

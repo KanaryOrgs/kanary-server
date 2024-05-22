@@ -16,6 +16,16 @@ func NewNodeController(kh *k8s.K8sHandler) *NodeController {
 	return &NodeController{kh: kh}
 }
 
+func (nc *NodeController) GetNodeCount(c *gin.Context) {
+	node, err := nc.kh.ListNodes()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to get nodes: %v", err)})
+		return
+	}
+	serializedPods := serializer.SerializeNodeCount(node)
+	c.JSON(http.StatusOK, serializedPods)
+}
+
 // GetNodes handles the GET requests to list Nodes.
 func (nc *NodeController) GetNodeList(c *gin.Context) {
 	nodes, err := nc.kh.ListNodes()

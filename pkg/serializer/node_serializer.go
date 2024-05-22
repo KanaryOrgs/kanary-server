@@ -30,6 +30,16 @@ type NodeDetails struct {
 	Capacity       map[string]string `json:"capacity"`
 }
 
+type NodeCount struct {
+	Count int `json:"count"`
+}
+
+func SerializeNodeCount(nodeList *v1.NodeList) NodeCount {
+	return NodeCount{
+		Count: len(nodeList.Items),
+	}
+}
+
 func SerializeNodeList(nodeList *v1.NodeList) []NodeList {
 	if nodeList == nil {
 		return nil
