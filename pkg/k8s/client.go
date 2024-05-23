@@ -2,13 +2,14 @@ package k8s
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
-	"log"
-	"os"
-	"path/filepath"
 )
 
 type K8sHandler struct {
