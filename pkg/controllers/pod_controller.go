@@ -17,15 +17,7 @@ func NewPodController(kh *k8s.K8sHandler) *PodController {
 	return &PodController{kh: kh}
 }
 
-// GetPods godoc
-// @Summary Show pod list.
-// @Schemes
-// @Description get pod list in k8s cluster.
-// @Tags pods
-// @Accept */*
-// @Produce json
-// @Success 200 {array} serializer.PodList
-// @Router /pods [get]
+// GetPods handles the GET requests to list Pods.
 func (pc *PodController) GetPods(c *gin.Context) {
 	pods, err := pc.kh.ListPods(c.Query("namespace"))
 	if err != nil {
@@ -34,4 +26,36 @@ func (pc *PodController) GetPods(c *gin.Context) {
 	}
 	serializedPods := serializer.SerializePodList(pods)
 	c.JSON(http.StatusOK, serializedPods)
+}
+
+func (pc *PodController) GetPod(c *gin.Context) {
+	podName := c.Param("name")
+	namespace := c.Param("namespace")
+
+	pod, err := pc.kh.GetPod(podName, namespace)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to get pod: %v", err)})
+		return
+	}
+
+	cpuUsage, memUsage, err := pc.kh.GetPodUsage(podName, namespace)
+	if err != nil {
+		c.Error(err).SetMeta("Failed to get pod usage")
+	}
+
+	serializePod := serializer.SerializePodDetails(pod, cpuUsage, memUsage)
+	c.JSON(http.StatusOK, serializePod)
+}
+
+func (pc *PodController) GetLogsOfPod(c *gin.Context) {
+	podName := c.Param("name")
+	namespace := c.Param("namespace")
+
+	podLogs, err := pc.kh.GetLogsOfPod(namespace, podName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to get pod: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, podLogs)
 }

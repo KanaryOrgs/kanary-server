@@ -34,7 +34,10 @@ func NewRouter(kh *k8s.K8sHandler) *gin.Engine {
 func setUpPodRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 	podController := controllers.NewPodController(kh)
 
-	api.GET("/pods", podController.GetPods)
+	api.GET("/pods", podController.GetPodList)
+	api.GET("/pods/:namespace/:name", podController.GetPod)
+	api.GET("/pods/logs/:namespace/:name", podController.GetLogsOfPod)
+
 }
 
 // setUpNodeRoutes sets up routing for node related endpoints.
@@ -42,7 +45,10 @@ func setUpPodRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 func setUpNodeRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 	nodeController := controllers.NewNodeController(kh)
 
-	api.GET("/nodes", nodeController.GetNodes)
+	api.GET("/nodes", nodeController.GetNodeList)
+	api.GET("/nodes/:name", nodeController.GetNode)
+	api.GET("/nodes/count", nodeController.GetNodeCount)
+
 }
 
 // setUpServiceRoutes sets up routing for service related endpoints.
