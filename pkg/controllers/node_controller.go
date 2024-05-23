@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kanaryorgs/kanary-server/pkg/k8s"
 	"github.com/kanaryorgs/kanary-server/pkg/serializer"
-	"net/http"
 )
 
 type NodeController struct {
@@ -16,7 +17,15 @@ func NewNodeController(kh *k8s.K8sHandler) *NodeController {
 	return &NodeController{kh: kh}
 }
 
-// GetNodes handles the GET requests to list Nodes.
+// GetNodes godoc
+// @Summary Show node list.
+// @Schemes
+// @Description get node list in k8s cluster.
+// @Tags nodes
+// @Accept */*
+// @Produce json
+// @Success 200 {array} serializer.NodeList
+// @Router /nodes [get]
 func (nc *NodeController) GetNodes(c *gin.Context) {
 	nodes, err := nc.kh.ListNodes()
 	if err != nil {

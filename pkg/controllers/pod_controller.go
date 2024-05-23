@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kanaryorgs/kanary-server/pkg/k8s"
 	"github.com/kanaryorgs/kanary-server/pkg/serializer"
-	"net/http"
 )
 
 type PodController struct {
@@ -16,7 +17,15 @@ func NewPodController(kh *k8s.K8sHandler) *PodController {
 	return &PodController{kh: kh}
 }
 
-// GetPods handles the GET requests to list Pods.
+// GetPods godoc
+// @Summary Show pod list.
+// @Schemes
+// @Description get pod list in k8s cluster.
+// @Tags pods
+// @Accept */*
+// @Produce json
+// @Success 200 {array} serializer.PodList
+// @Router /pods [get]
 func (pc *PodController) GetPods(c *gin.Context) {
 	pods, err := pc.kh.ListPods(c.Query("namespace"))
 	if err != nil {

@@ -1,0 +1,174 @@
+basePath: /v1
+definitions:
+  serializer.IngressList:
+    properties:
+      host:
+        type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      name:
+        type: string
+      namespace:
+        type: string
+      paths:
+        items:
+          type: string
+        type: array
+    type: object
+  serializer.NodeList:
+    properties:
+      conditions:
+        items:
+          type: string
+        type: array
+      cpu_core:
+        type: integer
+      ip:
+        type: string
+      kubelet_version:
+        type: string
+      name:
+        type: string
+      os:
+        type: string
+      ram_capacity:
+        type: integer
+      status:
+        type: string
+    type: object
+  serializer.PodList:
+    properties:
+      images:
+        items:
+          type: string
+        type: array
+      ip:
+        type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      name:
+        type: string
+      namespace:
+        type: string
+      restarts:
+        type: integer
+      status:
+        type: string
+    type: object
+  serializer.ServiceList:
+    properties:
+      clusterIP:
+        type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      name:
+        type: string
+      namespace:
+        type: string
+      ports:
+        items:
+          $ref: '#/definitions/serializer.ServicePort'
+        type: array
+      selector:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  serializer.ServicePort:
+    properties:
+      name:
+        type: string
+      port:
+        type: integer
+      protocol:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is API document for kanary-server
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: kanary-server API
+  version: "1.0"
+paths:
+  /ingresses:
+    get:
+      consumes:
+      - '*/*'
+      description: get ingress list in k8s cluster.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/serializer.IngressList'
+            type: array
+      summary: Show ingress list.
+      tags:
+      - ingresses
+  /nodes:
+    get:
+      consumes:
+      - '*/*'
+      description: get node list in k8s cluster.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/serializer.NodeList'
+            type: array
+      summary: Show node list.
+      tags:
+      - nodes
+  /pods:
+    get:
+      consumes:
+      - '*/*'
+      description: get pod list in k8s cluster.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/serializer.PodList'
+            type: array
+      summary: Show pod list.
+      tags:
+      - pods
+  /services:
+    get:
+      consumes:
+      - '*/*'
+      description: get service list in k8s cluster.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/serializer.ServiceList'
+            type: array
+      summary: Show service list.
+      tags:
+      - services
+swagger: "2.0"
