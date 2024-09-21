@@ -24,6 +24,8 @@ func NewRouter(kh *k8s.K8sHandler) *gin.Engine {
 		setUpNodeRoutes(v1, kh)
 		setUpServiceRoutes(v1, kh)
 		setUpIngressRoutes(v1, kh)
+		setUpDaemonSetRoutes(v1, kh)
+
 	}
 
 	return router
@@ -65,4 +67,13 @@ func setUpIngressRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 	ingressController := controllers.NewIngressController(kh)
 
 	api.GET("/ingresses", ingressController.GetIngresses)
+}
+
+// setUpDaemonSetRoutes sets up routing for daemonset related endpoints.
+// /v1/daemonsets/
+func setUpDaemonSetRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
+	daemonSetController := controllers.NewDaemonSetController(kh)
+
+	api.GET("/daemonsets", daemonSetController.GetDaemonSets)
+	api.GET("/daemonsets/:namespace/:name", daemonSetController.GetDaemonSet)
 }
