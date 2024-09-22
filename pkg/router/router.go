@@ -25,6 +25,7 @@ func NewRouter(kh *k8s.K8sHandler) *gin.Engine {
 		setUpServiceRoutes(v1, kh)
 		setUpIngressRoutes(v1, kh)
 		setUpDaemonSetRoutes(v1, kh)
+		setUpDeploymentRoutes(v1, kh)
 
 	}
 
@@ -76,4 +77,13 @@ func setUpDaemonSetRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 
 	api.GET("/daemonsets", daemonSetController.GetDaemonSets)
 	api.GET("/daemonsets/:namespace/:name", daemonSetController.GetDaemonSet)
+}
+
+// setUpDeploymentRoutes sets up routing for deployment related endpoints.
+// /v1/deployments/
+func setUpDeploymentRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
+	deploymentController := controllers.NewDeploymentController(kh)
+
+	api.GET("/deployments", deploymentController.GetDeployments)
+	api.GET("/deployments/:namespace/:name", deploymentController.GetDeployment)
 }
