@@ -26,7 +26,8 @@ func NewRouter(kh *k8s.K8sHandler) *gin.Engine {
 		setUpIngressRoutes(v1, kh)
 		setUpDaemonSetRoutes(v1, kh)
 		setUpDeploymentRoutes(v1, kh)
-
+		setUpPersistentVolumeRoutes(v1, kh)
+		setUpPersistentVolumeClaimRoutes(v1, kh)
 	}
 
 	return router
@@ -63,7 +64,7 @@ func setUpServiceRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 }
 
 // setUpIngressRoutes sets up routing for ingress related endpoints.
-// /v1/ingress/
+// /v1/ingresses/
 func setUpIngressRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 	ingressController := controllers.NewIngressController(kh)
 
@@ -86,4 +87,22 @@ func setUpDeploymentRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 
 	api.GET("/deployments", deploymentController.GetDeployments)
 	api.GET("/deployments/:namespace/:name", deploymentController.GetDeployment)
+}
+
+// setUpPersistentVolumeRoutes sets up routing for persistent volume related endpoints.
+// /v1/pvs/
+func setUpPersistentVolumeRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
+	persistentVolumeController := controllers.NewVolumeController(kh)
+
+	api.GET("/pvs", persistentVolumeController.GetPersistentVolumes)
+	api.GET("/pvs/:name", persistentVolumeController.GetPersistentVolume)
+}
+
+// setUpPersistentVolumeClaimoutes sets up routing for persistent volume claim related endpoints.
+// /v1/pvcs/
+func setUpPersistentVolumeClaimRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
+	persistentVolumeClaimController := controllers.NewVolumeController(kh)
+
+	api.GET("/pvcs", persistentVolumeClaimController.GetPersistentVolumeClaims)
+	api.GET("/pvcs/:namespace/:name", persistentVolumeClaimController.GetPersistentVolumeClaim)
 }
