@@ -28,6 +28,8 @@ func NewRouter(kh *k8s.K8sHandler) *gin.Engine {
 		setUpDeploymentRoutes(v1, kh)
 		setUpPersistentVolumeRoutes(v1, kh)
 		setUpPersistentVolumeClaimRoutes(v1, kh)
+		setUpStatefulSetRoutes(v1, kh)
+		setUpJobRoutes(v1, kh)
 	}
 
 	return router
@@ -114,4 +116,13 @@ func setUpStatefulSetRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 
 	api.GET("/statefulsets", statefulSetController.GetStatefulSets)
 	api.GET("/statefulsets/:namespace/:name", statefulSetController.GetStatefulSet)
+}
+
+// setUpJobRoutes sets up routing for job related endpoints.
+// /v1/jobs/
+func setUpJobRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
+	jobController := controllers.NewJobController(kh)
+
+	api.GET("/jobs", jobController.GetJobs)
+	api.GET("/jobs/:namespace/:name", jobController.GetJob)
 }
