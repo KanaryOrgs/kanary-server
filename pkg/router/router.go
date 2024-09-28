@@ -87,3 +87,12 @@ func setUpDeploymentRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 	api.GET("/deployments", deploymentController.GetDeployments)
 	api.GET("/deployments/:namespace/:name", deploymentController.GetDeployment)
 }
+
+// setUpStatefulSetRoutes sets up routing for statefulset related endpoints.
+// /v1/statefulsets/
+func setUpStatefulSetRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
+	statefulSetController := controllers.NewStatefulSetController(kh)
+
+	api.GET("/statefulsets", statefulSetController.GetStatefulSets)
+	api.GET("/statefulsets/:namespace/:name", statefulSetController.GetStatefulSet)
+}
