@@ -30,6 +30,7 @@ func NewRouter(kh *k8s.K8sHandler) *gin.Engine {
 		setUpPersistentVolumeClaimRoutes(v1, kh)
 		setUpStatefulSetRoutes(v1, kh)
 		setUpJobRoutes(v1, kh)
+		setUpCronJobRoutes(v1, kh)
 	}
 
 	return router
@@ -125,4 +126,13 @@ func setUpJobRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 
 	api.GET("/jobs", jobController.GetJobs)
 	api.GET("/jobs/:namespace/:name", jobController.GetJob)
+}
+
+// setUpCronJobRoutes sets up routing for cronjob related endpoints.
+// /v1/cronjobs/
+func setUpCronJobRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
+	cronJobController := controllers.NewCronJobController(kh)
+
+	api.GET("/cronjobs", cronJobController.GetCronJobs)
+	api.GET("/cronjobs/:namespace/:name", cronJobController.GetCronJob)
 }
