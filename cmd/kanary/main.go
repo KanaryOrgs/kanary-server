@@ -1,8 +1,11 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/kanaryorgs/kanary-server/pkg/k8s"
 	"github.com/kanaryorgs/kanary-server/pkg/router"
+	"github.com/rs/cors"
 )
 
 var (
@@ -25,9 +28,21 @@ func init() {
 //	@license.name	Apache 2.0
 //	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-//	@host		localhost:8080
-//	@BasePath	/v1
+// @host		localhost:8080
+// @BasePath	/v1
 func main() {
 	r := router.NewRouter(k8sHandler)
-	r.Run(":" + "8080")
+
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"}, // Frontend origin
+		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "PUT"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+	})
+
+	// Wrap the router with CORS
+	handler := c.Handler(r)
+
+	// Start the server with CORS handler
+	http.ListenAndServe(":8080", handler)
 }
