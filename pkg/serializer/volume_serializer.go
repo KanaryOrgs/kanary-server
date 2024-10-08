@@ -2,6 +2,7 @@ package serializer
 
 import (
 	v1 "k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -21,6 +22,14 @@ type PersistentVolumeClaimList struct {
 	AccessModes []string          `json:"access_modes"`
 	Status      string            `json:"status"`
 	Labels      map[string]string `json:"labels"`
+}
+
+type StorageClassList struct {
+	Name                 string            `json:"name"`
+	Provisioner          string            `json:"provisioner"`
+	ReclaimPolicy        string            `json:"reclaim_policy"`
+	AllowVolumeExpansion bool              `json:"allow_volume_expansion"`
+	Labels               map[string]string `json:"labels"`
 }
 
 type PersistentVolumeDetail struct {
@@ -43,6 +52,16 @@ type PersistentVolumeClaimDetail struct {
 	Labels         map[string]string `json:"labels"`
 	CreationTime   *metav1.Time      `json:"creation_time"`
 	StorageRequest map[string]string `json:"storage_request"`
+}
+
+type StorageClassDetail struct {
+	Name                 string            `json:"name"`
+	Provisioner          string            `json:"provisioner"`
+	ReclaimPolicy        string            `json:"reclaim_policy"`
+	AllowVolumeExpansion bool              `json:"allow_volume_expansion"`
+	Labels               map[string]string `json:"labels"`
+	CreationTime         *metav1.Time      `json:"creation_time"`
+	Parameters           map[string]string `json:"parameters"`
 }
 
 func SerializePersistentVolumeList(pvList *v1.PersistentVolumeList) []PersistentVolumeList {
@@ -96,6 +115,24 @@ func SerializePersistentVolumeClaimList(pvcList *v1.PersistentVolumeClaimList) [
 	return serializedPVCList
 }
 
+func SerializeStorageClassList(scList *storagev1.StorageClassList) []StorageClassList {
+	if scList == nil {
+		return nil
+	}
+
+	serializedSCList := make([]StorageClassList, len(scList.Items))
+	for i, sc := range scList.Items {
+		serializedSCList[i] = StorageClassList{
+			Name:                 sc.Name,
+			Provisioner:          sc.Provisioner,
+			ReclaimPolicy:        string(*sc.ReclaimPolicy),
+			AllowVolumeExpansion: *sc.AllowVolumeExpansion,
+			Labels:               sc.Labels,
+		}
+	}
+	return serializedSCList
+}
+
 func SerializePersistentVolumeDetail(pv *v1.PersistentVolume) PersistentVolumeDetail {
 	accessModes := make([]string, len(pv.Spec.AccessModes))
 	for i, mode := range pv.Spec.AccessModes {
@@ -140,5 +177,22 @@ func SerializePersistentVolumeClaimDetail(pvc *v1.PersistentVolumeClaim) Persist
 		Labels:         pvc.Labels,
 		CreationTime:   &pvc.CreationTimestamp,
 		StorageRequest: storageRequest,
+	}
+}
+
+func SerializeStorageClassDetail(sc *storagev1.StorageClass) StorageClassDetail {
+	parameters := make(map[string]string)
+	for key, value := range sc.Parameters {
+		parameters[key] = value
+	}
+
+	return StorageClassDetail{
+		Name:                 sc.Name,
+		Provisioner:          sc.Provisioner,
+		ReclaimPolicy:        string(*sc.ReclaimPolicy),
+		AllowVolumeExpansion: *sc.AllowVolumeExpansion,
+		Labels:               sc.Labels,
+		CreationTime:         &sc.CreationTimestamp,
+		Parameters:           parameters,
 	}
 }

@@ -40,6 +40,17 @@ func (vc *VolumeController) GetPersistentVolumeClaims(c *gin.Context) {
 	c.JSON(http.StatusOK, serializedPVCs)
 }
 
+// GetStorageClasses handles GET requests to list StorageClasses.
+func (vc *VolumeController) GetStorageClasses(c *gin.Context) {
+	storageClasses, err := vc.kh.ListStorageClasses()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to get storage classes: %v", err)})
+		return
+	}
+	serializedStorageClasses := serializer.SerializeStorageClassList(storageClasses)
+	c.JSON(http.StatusOK, serializedStorageClasses)
+}
+
 // GetPV handles the GET request to retrieve a specific PersistentVolume.
 func (vc *VolumeController) GetPersistentVolume(c *gin.Context) {
 	pvName := c.Param("name")
@@ -67,4 +78,18 @@ func (vc *VolumeController) GetPersistentVolumeClaim(c *gin.Context) {
 
 	serializedPVC := serializer.SerializePersistentVolumeClaimDetail(pvc)
 	c.JSON(http.StatusOK, serializedPVC)
+}
+
+// GetStorageClass handles GET request to retrieve a specific StorageClass.
+func (vc *VolumeController) GetStorageClass(c *gin.Context) {
+	name := c.Param("name")
+
+	storageClass, err := vc.kh.GetStorageClass(name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to get storage class: %v", err)})
+		return
+	}
+
+	serializedStorageClass := serializer.SerializeStorageClassDetail(storageClass)
+	c.JSON(http.StatusOK, serializedStorageClass)
 }

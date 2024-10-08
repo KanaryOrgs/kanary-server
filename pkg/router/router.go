@@ -110,6 +110,15 @@ func setUpPersistentVolumeClaimRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) 
 	api.GET("/pvcs/:namespace/:name", persistentVolumeClaimController.GetPersistentVolumeClaim)
 }
 
+// setUpStorageClassRoutes sets up routing for storage class related endpoints.
+// /v1/storageclasses/
+func setUpStorageClassRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
+	storageClassController := controllers.NewVolumeController(kh)
+
+	api.GET("/storageclasses", storageClassController.GetStorageClasses)
+	api.GET("/storageclasses/:name", storageClassController.GetStorageClass)
+}
+
 // setUpStatefulSetRoutes sets up routing for statefulset related endpoints.
 // /v1/statefulsets/
 func setUpStatefulSetRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
