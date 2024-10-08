@@ -32,6 +32,7 @@ func NewRouter(kh *k8s.K8sHandler) *gin.Engine {
 		setUpStatefulSetRoutes(v1, kh)
 		setUpJobRoutes(v1, kh)
 		setUpCronJobRoutes(v1, kh)
+		setUpEventRoutes(v1, kh)
 	}
 
 	return router
@@ -145,4 +146,13 @@ func setUpCronJobRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
 
 	api.GET("/cronjobs", cronJobController.GetCronJobs)
 	api.GET("/cronjobs/:namespace/:name", cronJobController.GetCronJob)
+}
+
+// setUpEventRoutes sets up routing for event related endpoints.
+// /v1/events/
+func setUpEventRoutes(api *gin.RouterGroup, kh *k8s.K8sHandler) {
+	eventController := controllers.NewEventController(kh)
+
+	api.GET("/events", eventController.GetEvents)
+	api.GET("/events/:namespace/:name", eventController.GetEvent)
 }
