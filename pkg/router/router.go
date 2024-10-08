@@ -28,6 +28,7 @@ func NewRouter(kh *k8s.K8sHandler) *gin.Engine {
 		setUpDeploymentRoutes(v1, kh)
 		setUpPersistentVolumeRoutes(v1, kh)
 		setUpPersistentVolumeClaimRoutes(v1, kh)
+		setUpStorageClassRoutes(v1, kh)
 		setUpStatefulSetRoutes(v1, kh)
 		setUpJobRoutes(v1, kh)
 		setUpCronJobRoutes(v1, kh)
