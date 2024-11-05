@@ -13,7 +13,7 @@ import (
 )
 
 type K8sHandler struct {
-	K8sClient       *kubernetes.Clientset
+	K8sClient       kubernetes.Interface
 	MetricK8sClient *versioned.Clientset
 }
 
@@ -41,7 +41,7 @@ func getClientConfig() (*rest.Config, error) {
 		}
 	}
 
-	kubeconfig, err = clientcmd.BuildConfigFromFlags("", configFile)
+	kubeconfig, err = clientcmd.BuildConfigFromFlags("http://10.10.0.118:8001", configFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build config from file %s: %v", configFile, err)
 
@@ -50,7 +50,7 @@ func getClientConfig() (*rest.Config, error) {
 }
 
 // initK8sClient initializes a Kubernetes client using in-cluster kubeconfig, or falls back to out-of-cluster kubeconfig.
-func initK8sClient() *kubernetes.Clientset {
+func initK8sClient() kubernetes.Interface {
 	config, err := getClientConfig()
 	if err != nil {
 		log.Printf("Failed to get K8s client kubeconfig: %v", err)
