@@ -41,7 +41,7 @@ func getClientConfig() (*rest.Config, error) {
 		}
 	}
 
-	kubeconfig, err = clientcmd.BuildConfigFromFlags("http://10.10.0.118:8001", configFile)
+	kubeconfig, err = clientcmd.BuildConfigFromFlags("", configFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build config from file %s: %v", configFile, err)
 
