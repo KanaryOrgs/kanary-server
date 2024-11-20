@@ -195,11 +195,20 @@ func SerializeStorageClassDetail(sc *storagev1.StorageClass) StorageClassDetail 
 		parameters[key] = value
 	}
 
+	allowVolumeExpansion := false
+	if sc.AllowVolumeExpansion != nil {
+		allowVolumeExpansion = *sc.AllowVolumeExpansion
+	}
+	reclaimPolicy := ""
+	if sc.ReclaimPolicy != nil {
+		reclaimPolicy = string(*sc.ReclaimPolicy)
+	}
+
 	return StorageClassDetail{
 		Name:                 sc.Name,
 		Provisioner:          sc.Provisioner,
-		ReclaimPolicy:        string(*sc.ReclaimPolicy),
-		AllowVolumeExpansion: *sc.AllowVolumeExpansion,
+		ReclaimPolicy:        reclaimPolicy,
+		AllowVolumeExpansion: allowVolumeExpansion,
 		Labels:               sc.Labels,
 		CreationTime:         &sc.CreationTimestamp,
 		Parameters:           parameters,
