@@ -122,11 +122,20 @@ func SerializeStorageClassList(scList *storagev1.StorageClassList) []StorageClas
 
 	serializedSCList := make([]StorageClassList, len(scList.Items))
 	for i, sc := range scList.Items {
+		allowVolumeExpansion := false
+		if sc.AllowVolumeExpansion != nil {
+			allowVolumeExpansion = *sc.AllowVolumeExpansion
+		}
+		reclaimPolicy := ""
+		if sc.ReclaimPolicy != nil {
+			reclaimPolicy = string(*sc.ReclaimPolicy)
+		}
+
 		serializedSCList[i] = StorageClassList{
 			Name:                 sc.Name,
 			Provisioner:          sc.Provisioner,
-			ReclaimPolicy:        string(*sc.ReclaimPolicy),
-			AllowVolumeExpansion: *sc.AllowVolumeExpansion,
+			ReclaimPolicy:        reclaimPolicy,
+			AllowVolumeExpansion: allowVolumeExpansion,
 			Labels:               sc.Labels,
 		}
 	}
